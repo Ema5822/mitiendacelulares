@@ -1,78 +1,59 @@
 const axios = require("axios")
 const cheerio = require("cheerio")
 
-exports.handler = async function(){
+exports.handler = async function () {
 
-let productos=[]
-let pagina=1
-let seguir=true
+let productos = []
 
-while(seguir){
+try {
 
-try{
+const url = "https://www.evophone.com.ar/categoria-producto/electronica-y-lifestyle/celulares/"
 
-const url=`https://www.evophone.com.ar/categoria-producto/electronica-y-lifestyle/celulares/page/${pagina}`
-
-const {data}=await axios.get(url)
-
-const $=cheerio.load(data)
-
-let encontrados=0
-
-$(".product").each((i,el)=>{
-
-const nombre=$(el).find("h2").text().trim()
-
-let precioTexto=$(el).find(".price").first().text()
-
-let precio=parseFloat(
-precioTexto
-.replace(/\./g,"")
-.replace(/[^0-9]/g,"")
-)
-
-if(!precio) return
-
-let precioVenta=Math.round(precio*1.10)
-
-let imagen =
-$(el).find("img").attr("data-src") ||
-$(el).find("img").attr("src") ||
-$(el).find("img").attr("srcset")
-
-if(imagen && imagen.includes(" ")){
-imagen=imagen.split(" ")[0]
+const { data } = await axios.get(url, {
+headers: {
+"User-Agent": "Mozilla/5.0"
 }
+})
+
+const $ = cheerio.load(data)
+
+$(".product").each((i, el) => {
+
+const nombre = $(el).find("h2").text().trim()
+
+const precioTexto = $(el).find(".price").text()
+
+let precio = parseFloat(precioTexto.replace(/[^0-9]/g, ""))
+
+if (!precio) return
+
+let precioVenta = Math.round(precio * 1.10)
+
+const imagen = $(el).find("img").attr("src")
 
 productos.push({
 nombre,
-precio:precioVenta,
+precio: precioVenta,
 imagen
 })
 
-encontrados++
-
 })
 
-if(encontrados===0){
-seguir=false
-}else{
-pagina++
-}
+} catch (error) {
 
-}catch{
-seguir=false
+return {
+statusCode: 500,
+body: JSON.stringify({ error: "Error obteniendo celulares" })
 }
 
 }
 
-return{
-statusCode:200,
-headers:{
-"Access-Control-Allow-Origin":"*",
-"Cache-Control":"public, max-age=1800"
+return {
+statusCode: 200,
+headers: {
+"Access-Control-Allow-Origin": "*"
 },
-body:JSON.stringify(productos)
+body: JSON.stringify(productos)
 }
 
 }
