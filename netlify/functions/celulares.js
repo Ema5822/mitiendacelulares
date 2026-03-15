@@ -1,86 +1,61 @@
 
-const axios = require("axios")
-const cheerio = require("cheerio")
+const axios = require("axios");
+const cheerio = require("cheerio");
 
-exports.handler = async function () {
+exports.handler = async function(){
 
-let productos = []
-let pagina = 1
-let seguir = true
+const paginas=[
+"https://www.evophone.com.ar/categoria-producto/electronica-y-lifestyle/celulares/page/1/",
+"https://www.evophone.com.ar/categoria-producto/electronica-y-lifestyle/celulares/page/2/",
+"https://www.evophone.com.ar/categoria-producto/electronica-y-lifestyle/celulares/page/3/",
+"https://www.evophone.com.ar/categoria-producto/electronica-y-lifestyle/celulares/page/4/",
+"https://www.evophone.com.ar/categoria-producto/electronica-y-lifestyle/celulares/page/5/"
+];
 
-while (seguir) {
+let productos=[];
 
-  try {
+for(const url of paginas){
 
-    const url = `https://www.evophone.com.ar/categoria-producto/electronica-y-lifestyle/celulares/page/${pagina}`
+const {data}=await axios.get(url);
+const $=cheerio.load(data);
 
-    const { data } = await axios.get(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0",
-        "Accept": "text/html"
-      }
-    })
+$(".product").each((i,el)=>{
 
-    const $ = cheerio.load(data)
+let nombre=$(el).find("h2").text().trim();
+let precioTexto=$(el).find(".price").text();
+let imagen=$(el).find("img").attr("src");
 
-    let encontrados = 0
+let precio=parseInt(precioTexto.replace(/\D/g,""));
 
-    $(".product").each((i, el) => {
+if(nombre && precio){
 
-      const nombre = $(el).find("h2").text().trim()
+let precioFinal=Math.round(precio*1.10);
 
-      let precioTexto = $(el).find(".woocommerce-Price-amount bdi").first().text().trim()
+let marca="Otros";
+if(nombre.toLowerCase().includes("samsung")) marca="Samsung";
+if(nombre.toLowerCase().includes("xiaomi")) marca="Xiaomi";
+if(nombre.toLowerCase().includes("moto")) marca="Motorola";
 
-      if(!precioTexto){
-        precioTexto = $(el).find(".price").text().trim()
-      }
+productos.push({
+nombre,
+precio:precioFinal,
+imagen,
+marca
+});
 
-      const numero = precioTexto
-        .replace(/\./g,"")
-        .replace(",",".")
-        .match(/[0-9]+(\.[0-9]+)?/)
+}
 
-      if(!numero) return
+});
 
-      const precioBase = parseFloat(numero[0])
-
-      if(!precioBase) return
-
-      const precioVenta = Math.round(precioBase * 1.10)
-
-      let imagen =
-        $(el).find("img").attr("data-src") ||
-        $(el).find("img").attr("data-lazy-src") ||
-        $(el).find("img").attr("src")
-
-      productos.push({
-        nombre,
-        precio_original: precioBase,
-        precio: precioVenta,
-        imagen
-      })
-
-      encontrados++
-    })
-
-    if (encontrados === 0) {
-      seguir = false
-    } else {
-      pagina++
-    }
-
-  } catch (e) {
-    seguir = false
-  }
 }
 
 return {
-  statusCode: 200,
-  headers: {
-    "Access-Control-Allow-Origin": "*",
-    "Cache-Control": "public, max-age=1800"
-  },
-  body: JSON.stringify(productos)
-}
+statusCode:200,
+headers:{
+"Content-Type":"application/json",
+"Cache-Control":"public, max-age=7200"
+},
+body:JSON.stringify(productos)
+};
 
-}
+};

@@ -1,12 +1,23 @@
-Tienda de celulares con imágenes reales
 
-Incluye:
-- 36 celulares
-- imágenes reales de teléfonos desde Wikimedia Commons
-- detalles del equipo
-- filtros y carrito
-- compra por WhatsApp
+SUBIR A NETLIFY
 
-Importante:
-- Para mantener estabilidad, algunas variantes usan la misma imagen por marca/familia.
-- Si querés, después te preparo una versión con más modelos y una imagen específica por cada uno.
+1. Ir a https://app.netlify.com
+
+2. Click en:
+Add new site
+
+3. Elegir:
+Deploy manually
+
+4. Arrastrar este ZIP
+
+La tienda quedará online automáticamente.
+
+FUNCIONES:
+- Toma celulares de las 5 páginas de Evophone
+- Usa imágenes reales
+- Suma 10% al precio
+- Botón comprar por WhatsApp
+- Buscador
+- Filtro por marca
+- Cache 2 horas
