@@ -1,0 +1,170 @@
+[
+  {
+    "id": 1,
+    "nombre": "Celular Moto E15 2GB RAM 64GB Misty Blue",
+    "marca": "Motorola",
+    "precio": 160966,
+    "stock": 2,
+    "imagen": "assets/motorola.png"
+  },
+  {
+    "id": 2,
+    "nombre": "Celular Moto E15 2GB RAM 64GB Morado",
+    "marca": "Motorola",
+    "precio": 160966,
+    "stock": 3,
+    "imagen": "assets/motorola.png"
+  },
+  {
+    "id": 3,
+    "nombre": "Celular Moto G05 4GB RAM 128GB Rojo",
+    "marca": "Motorola",
+    "precio": 202847,
+    "stock": 4,
+    "imagen": "assets/motorola.png"
+  },
+  {
+    "id": 4,
+    "nombre": "Celular Moto G05 4GB RAM 256GB Azul (Sin Cargador)",
+    "marca": "Motorola",
+    "precio": 218291,
+    "stock": 5,
+    "imagen": "assets/motorola.png"
+  },
+  {
+    "id": 5,
+    "nombre": "Celular Moto G05 4GB RAM 256GB Rojo (Sin Cargador)",
+    "marca": "Motorola",
+    "precio": 218291,
+    "stock": 6,
+    "imagen": "assets/motorola.png"
+  },
+  {
+    "id": 6,
+    "nombre": "Celular Moto G06 4GB RAM 128GB Verde",
+    "marca": "Motorola",
+    "precio": 216089,
+    "stock": 7,
+    "imagen": "assets/motorola.png"
+  },
+  {
+    "id": 7,
+    "nombre": "Celular Moto G06 4GB RAM 256GB Orange",
+    "marca": "Motorola",
+    "precio": 231517,
+    "stock": 1,
+    "imagen": "assets/motorola.png"
+  },
+  {
+    "id": 8,
+    "nombre": "Celular Moto G15 XT2521-2 4GB RAM 256GB Gray",
+    "marca": "Motorola",
+    "precio": 224896,
+    "stock": 2,
+    "imagen": "assets/motorola.png"
+  },
+  {
+    "id": 9,
+    "nombre": "Celular Moto G56 5G XT2529-1 8GB RAM 256GB Gris",
+    "marca": "Motorola",
+    "precio": 379241,
+    "stock": 3,
+    "imagen": "assets/motorola.png"
+  },
+  {
+    "id": 10,
+    "nombre": "Celular Moto G56 5G XT2529-2 12GB RAM 256GB Gris",
+    "marca": "Motorola",
+    "precio": 392468,
+    "stock": 4,
+    "imagen": "assets/motorola.png"
+  },
+  {
+    "id": 11,
+    "nombre": "Celular Samsung A06 SM-A065M/DS 4GB RAM 64GB Black",
+    "marca": "Samsung",
+    "precio": 183015,
+    "stock": 5,
+    "imagen": "assets/samsung.png"
+  },
+  {
+    "id": 12,
+    "nombre": "Celular Samsung A16 4GB RAM 128GB Gray",
+    "marca": "Samsung",
+    "precio": 262390,
+    "stock": 6,
+    "imagen": "assets/samsung.png"
+  },
+  {
+    "id": 13,
+    "nombre": "Celular Samsung A17 6GB RAM 128GB Silver",
+    "marca": "Samsung",
+    "precio": 399865,
+    "stock": 7,
+    "imagen": "assets/samsung.png"
+  },
+  {
+    "id": 14,
+    "nombre": "Celular Samsung F17 4GB RAM 128GB Black",
+    "marca": "Samsung",
+    "precio": 352788,
+    "stock": 1,
+    "imagen": "assets/samsung.png"
+  },
+  {
+    "id": 15,
+    "nombre": "Celular Xiaomi Poco C71 Dual 3GB RAM 64GB Blue",
+    "marca": "Xiaomi",
+    "precio": 167571,
+    "stock": 2,
+    "imagen": "assets/xiaomi.png"
+  },
+  {
+    "id": 16,
+    "nombre": "Celular Xiaomi Poco C71 Dual 3GB RAM 64GB Gold",
+    "marca": "Xiaomi",
+    "precio": 167571,
+    "stock": 3,
+    "imagen": "assets/xiaomi.png"
+  },
+  {
+    "id": 17,
+    "nombre": "Celular Xiaomi Poco C71 Dual 4GB RAM 128GB Black",
+    "marca": "Xiaomi",
+    "precio": 198444,
+    "stock": 4,
+    "imagen": "assets/xiaomi.png"
+  },
+  {
+    "id": 18,
+    "nombre": "Celular Xiaomi Poco C71 Dual 4GB RAM 128GB Blue",
+    "marca": "Xiaomi",
+    "precio": 198444,
+    "stock": 5,
+    "imagen": "assets/xiaomi.png"
+  },
+  {
+    "id": 19,
+    "nombre": "Celular Xiaomi Poco C71 Dual 4GB RAM 128GB Gold",
+    "marca": "Xiaomi",
+    "precio": 198444,
+    "stock": 6,
+    "imagen": "assets/xiaomi.png"
+  },
+  {
+    "id": 20,
+    "nombre": "Celular Xiaomi Poco C85 Dual 6GB RAM 128GB Purple",
+    "marca": "Xiaomi",
+    "precio": 233719,
+    "stock": 7,
+    "imagen": "assets/xiaomi.png"
+  },
+  {
+    "id": 21,
+    "nombre": "Celular Xiaomi Redmi A5 DS 3GB RAM 64GB Black",
+    "marca": "Xiaomi",
+    "precio": 165370,
+    "stock": 1,
+    "imagen": "assets/xiaomi.png"
+  }
+]

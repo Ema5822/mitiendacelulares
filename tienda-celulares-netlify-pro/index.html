@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tienda de Celulares</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">📱 Tienda de Celulares</div>
+    <input id="buscar" placeholder="Buscar celular..." />
+  </header>
+
+  <main>
+    <div id="estado" class="estado">Cargando celulares...</div>
+    <div id="productos" class="grid"></div>
+  </main>
+
+  <script>
+    let celulares = [];
+
+    async function cargar() {
+      const estado = document.getElementById("estado");
+      const cont = document.getElementById("productos");
+
+      try {
+        const res = await fetch("/.netlify/functions/celulares");
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || "No se pudieron cargar los celulares");
+        }
+
+        celulares = Array.isArray(data) ? data : [];
+
+        if (celulares.length === 0) {
+          estado.textContent = "No se encontraron celulares.";
+          cont.innerHTML = "";
+          return;
+        }
+
+        estado.textContent = `Se cargaron ${celulares.length} celulares`;
+        mostrar(celulares);
+      } catch (e) {
+        estado.textContent = "Error cargando celulares. Revisá la función de Netlify.";
+        cont.innerHTML = "";
+      }
+    }
+
+    function mostrar(lista) {
+      const cont = document.getElementById("productos");
+      cont.innerHTML = "";
+
+      lista.forEach((p) => {
+        const nombreCodificado = encodeURIComponent(p.nombre);
+        cont.innerHTML += `
+          <div class="card">
+            <img src="${p.imagen}" alt="${p.nombre}">
+            <h3>${p.nombre}</h3>
+            <p class="precio">$${Number(p.precio).toLocaleString("es-AR")}</p>
+            <a target="_blank" href="https://wa.me/549XXXXXXXXXX?text=Hola%20quiero%20comprar%20${nombreCodificado}">
+              <button>Comprar por WhatsApp</button>
+            </a>
+          </div>
+        `;
+      });
+    }
+
+    document.getElementById("buscar").addEventListener("input", (e) => {
+      const texto = e.target.value.toLowerCase().trim();
+      const filtrados = celulares.filter((p) =>
+        p.nombre.toLowerCase().includes(texto)
+      );
+      mostrar(filtrados);
+    });
+
+    cargar();
+  </script>
+</body>
+</html>

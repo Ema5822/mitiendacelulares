@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tienda Celulares</title>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+background:#f2f2f2;
+}
+
+header{
+background:#111;
+color:white;
+padding:20px;
+text-align:center;
+}
+
+.controls{
+display:flex;
+gap:10px;
+padding:15px;
+justify-content:center;
+flex-wrap:wrap;
+}
+
+input,select{
+padding:8px;
+font-size:16px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+padding:20px;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:10px;
+text-align:center;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.card img{
+width:150px;
+height:150px;
+object-fit:contain;
+}
+
+.price{
+color:#1a9e3f;
+font-size:22px;
+font-weight:bold;
+margin:10px 0;
+}
+
+button{
+background:#25D366;
+border:none;
+color:white;
+padding:10px 15px;
+border-radius:6px;
+cursor:pointer;
+}
+
+button:hover{
+background:#1da851;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+<h1>📱 Tienda de Celulares</h1>
+<p>Compra fácil por WhatsApp</p>
+</header>
+
+<div class="controls">
+
+<input type="text" id="buscar" placeholder="Buscar celular">
+
+<select id="marca">
+<option value="">Todas las marcas</option>
+<option>Samsung</option>
+<option>Motorola</option>
+<option>Xiaomi</option>
+</select>
+
+</div>
+
+<div class="grid" id="productos"></div>
+
+<script>
+
+const telefono="5493405504914";
+let celulares=[];
+
+async function cargar(){
+
+const res=await fetch("/.netlify/functions/celulares");
+celulares=await res.json();
+
+mostrar(celulares);
+
+}
+
+function mostrar(lista){
+
+const cont=document.getElementById("productos");
+cont.innerHTML="";
+
+lista.forEach(p=>{
+
+let mensaje=`Hola quiero comprar ${p.nombre} $${p.precio}`;
+let url=`https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+
+cont.innerHTML+=`
+
+<div class="card">
+
+<img src="${p.imagen}">
+
+<h3>${p.nombre}</h3>
+
+<div class="price">$${p.precio.toLocaleString()}</div>
+
+<a href="${url}" target="_blank">
+
+<button>Comprar por WhatsApp</button>
+
+</a>
+
+</div>
+
+`;
+
+});
+
+}
+
+document.getElementById("buscar").addEventListener("input",filtrar);
+document.getElementById("marca").addEventListener("change",filtrar);
+
+function filtrar(){
+
+let texto=document.getElementById("buscar").value.toLowerCase();
+let marca=document.getElementById("marca").value;
+
+let filtrados=celulares.filter(c=>{
+
+let okTexto=c.nombre.toLowerCase().includes(texto);
+let okMarca=!marca || c.marca===marca;
+
+return okTexto && okMarca;
+
+});
+
+mostrar(filtrados);
+
+}
+
+cargar();
+
+</script>
+
+</body>
+</html>

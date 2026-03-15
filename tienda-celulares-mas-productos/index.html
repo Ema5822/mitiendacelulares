@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tienda de Celulares</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="brand">📱 Tienda de Celulares</div>
+    <div class="controls">
+      <input id="buscar" type="text" placeholder="Buscar celular..." />
+      <select id="marca">
+        <option value="">Todas las marcas</option>
+        <option value="Motorola">Motorola</option>
+        <option value="Samsung">Samsung</option>
+        <option value="Xiaomi">Xiaomi</option>
+      </select>
+      <select id="orden">
+        <option value="destacados">Destacados</option>
+        <option value="menor">Menor precio</option>
+        <option value="mayor">Mayor precio</option>
+        <option value="az">A-Z</option>
+      </select>
+      <button class="cart-btn" onclick="abrirCarrito()">🛒 Carrito <span id="cartCount">0</span></button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div>
+        <h1>Más celulares y fotos que sí cargan</h1>
+        <p>Catálogo ampliado con 21 modelos, buscador, filtros y carrito por WhatsApp.</p>
+      </div>
+      <div class="hero-badge">WhatsApp: 5493405504914</div>
+    </section>
+
+    <div class="meta">
+      <span id="estado">Cargando productos...</span>
+      <span>Sitio estático listo para Netlify</span>
+    </div>
+
+    <section id="productos" class="grid"></section>
+  </main>
+
+  <aside id="carritoPanel" class="drawer">
+    <div class="drawer-head">
+      <h2>Tu carrito</h2>
+      <button class="ghost" onclick="cerrarCarrito()">✕</button>
+    </div>
+    <div id="listaCarrito" class="drawer-body"></div>
+    <div class="drawer-foot">
+      <p>Total: <strong id="cartTotal">$0</strong></p>
+      <button class="primary full" onclick="comprarWhatsApp()">Finalizar por WhatsApp</button>
+      <button class="ghost full" onclick="vaciarCarrito()">Vaciar carrito</button>
+    </div>
+  </aside>
+
+  <div id="overlay" class="overlay" onclick="cerrarCarrito()"></div>
+
+  <script>
+    let productos = [];
+    let carrito = JSON.parse(localStorage.getItem("carritoCelulares") || "[]");
+
+    async function cargar() {
+      const res = await fetch("./celulares.json");
+      productos = await res.json();
+      document.getElementById("estado").textContent = `Se cargaron ${productos.length} celulares`;
+      render();
+      actualizarCarrito();
+    }
+
+    function formatoPrecio(valor) {
+      return "$" + Number(valor).toLocaleString("es-AR");
+    }
+
+    function render() {
+      let lista = [...productos];
+      const texto = document.getElementById("buscar").value.toLowerCase().trim();
+      const marca = document.getElementById("marca").value;
+      const orden = document.getElementById("orden").value;
+
+      lista = lista.filter(p => {
+        const matchTexto = p.nombre.toLowerCase().includes(texto) || p.marca.toLowerCase().includes(texto);
+        const matchMarca = !marca || p.marca === marca;
+        return matchTexto && matchMarca;
+      });
+
+      if (orden === "menor") lista.sort((a,b) => a.precio - b.precio);
+      if (orden === "mayor") lista.sort((a,b) => b.precio - a.precio);
+      if (orden === "az") lista.sort((a,b) => a.nombre.localeCompare(b.nombre));
+
+      const cont = document.getElementById("productos");
+      cont.innerHTML = "";
+
+      if (!lista.length) {
+        cont.innerHTML = '<div class="empty">No se encontraron celulares con ese filtro.</div>';
+        return;
+      }
+
+      lista.forEach(p => {
+        cont.innerHTML += `
+          <article class="card">
+            <img src="${p.imagen}" alt="${p.nombre}">
+            <div class="tag">${p.marca}</div>
+            <h3>${p.nombre}</h3>
+            <p class="stock">Stock disponible: ${p.stock}</p>
+            <p class="precio">${formatoPrecio(p.precio)}</p>
+            <div class="actions">
+              <button class="primary" onclick="agregarAlCarrito(${p.id})">Agregar</button>
+              <a class="wa" target="_blank" href="https://wa.me/5493405504914?text=${encodeURIComponent('Hola, quiero consultar por ' + p.nombre + ' - Precio: ' + formatoPrecio(p.precio))}">WhatsApp</a>
+            </div>
+          </article>
+        `;
+      });
+    }
+
+    function agregarAlCarrito(id) {
+      const producto = productos.find(p => p.id === id);
+      if (!producto) return;
+      const item = carrito.find(p => p.id === id);
+      if (item) item.cantidad += 1;
+      else carrito.push({...producto, cantidad: 1});
+      guardarCarrito();
+      actualizarCarrito();
+    }
+
+    function cambiarCantidad(id, delta) {
+      const item = carrito.find(p => p.id === id);
+      if (!item) return;
+      item.cantidad += delta;
+      if (item.cantidad <= 0) carrito = carrito.filter(p => p.id !== id);
+      guardarCarrito();
+      actualizarCarrito();
+    }
+
+    function quitarItem(id) {
+      carrito = carrito.filter(p => p.id !== id);
+      guardarCarrito();
+      actualizarCarrito();
+    }
+
+    function guardarCarrito() {
+      localStorage.setItem("carritoCelulares", JSON.stringify(carrito));
+    }
+
+    function actualizarCarrito() {
+      const count = carrito.reduce((acc, item) => acc + item.cantidad, 0);
+      const total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+      document.getElementById("cartCount").textContent = count;
+      document.getElementById("cartTotal").textContent = formatoPrecio(total);
+
+      const lista = document.getElementById("listaCarrito");
+      if (!carrito.length) {
+        lista.innerHTML = '<p class="empty-cart">Tu carrito está vacío.</p>';
+        return;
+      }
+
+      lista.innerHTML = carrito.map(item => `
+        <div class="cart-item">
+          <div>
+            <strong>${item.nombre}</strong>
+            <p>${item.marca} · ${formatoPrecio(item.precio)}</p>
+          </div>
+          <div class="qty">
+            <button onclick="cambiarCantidad(${item.id}, -1)">-</button>
+            <span>${item.cantidad}</span>
+            <button onclick="cambiarCantidad(${item.id}, 1)">+</button>
+          </div>
+          <button class="remove" onclick="quitarItem(${item.id})">Eliminar</button>
+        </div>
+      `).join("");
+    }
+
+    function abrirCarrito() {
+      document.getElementById("carritoPanel").classList.add("open");
+      document.getElementById("overlay").classList.add("show");
+    }
+
+    function cerrarCarrito() {
+      document.getElementById("carritoPanel").classList.remove("open");
+      document.getElementById("overlay").classList.remove("show");
+    }
+
+    function vaciarCarrito() {
+      carrito = [];
+      guardarCarrito();
+      actualizarCarrito();
+    }
+
+    function comprarWhatsApp() {
+      if (!carrito.length) {
+        alert("Tu carrito está vacío");
+        return;
+      }
+      const total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+      let texto = "Hola, quiero hacer este pedido:%0A%0A";
+      carrito.forEach(item => {
+        texto += `• ${item.nombre} x${item.cantidad} - ${formatoPrecio(item.precio * item.cantidad)}%0A`;
+      });
+      texto += `%0ATotal: ${formatoPrecio(total)}`;
+      window.open("https://wa.me/5493405504914?text=" + texto, "_blank");
+    }
+
+    document.getElementById("buscar").addEventListener("input", render);
+    document.getElementById("marca").addEventListener("change", render);
+    document.getElementById("orden").addEventListener("change", render);
+
+    cargar();
+  </script>
+</body>
+</html>

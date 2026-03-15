@@ -1,0 +1,74 @@
+[
+  {
+    "id": 1,
+    "nombre": "Moto G05 128GB",
+    "marca": "Motorola",
+    "precio": 202847,
+    "stock": 4,
+    "imagen": "https://placehold.co/320x320/png?text=Motorola"
+  },
+  {
+    "id": 2,
+    "nombre": "Moto G06 128GB",
+    "marca": "Motorola",
+    "precio": 216089,
+    "stock": 3,
+    "imagen": "https://placehold.co/320x320/png?text=Motorola"
+  },
+  {
+    "id": 3,
+    "nombre": "Moto G56 5G 256GB",
+    "marca": "Motorola",
+    "precio": 379241,
+    "stock": 2,
+    "imagen": "https://placehold.co/320x320/png?text=Motorola"
+  },
+  {
+    "id": 4,
+    "nombre": "Samsung A06 64GB",
+    "marca": "Samsung",
+    "precio": 183015,
+    "stock": 6,
+    "imagen": "https://placehold.co/320x320/png?text=Samsung"
+  },
+  {
+    "id": 5,
+    "nombre": "Samsung A16 128GB",
+    "marca": "Samsung",
+    "precio": 262390,
+    "stock": 5,
+    "imagen": "https://placehold.co/320x320/png?text=Samsung"
+  },
+  {
+    "id": 6,
+    "nombre": "Samsung A17 128GB",
+    "marca": "Samsung",
+    "precio": 399865,
+    "stock": 2,
+    "imagen": "https://placehold.co/320x320/png?text=Samsung"
+  },
+  {
+    "id": 7,
+    "nombre": "Xiaomi Poco C71 64GB",
+    "marca": "Xiaomi",
+    "precio": 167571,
+    "stock": 7,
+    "imagen": "https://placehold.co/320x320/png?text=Xiaomi"
+  },
+  {
+    "id": 8,
+    "nombre": "Xiaomi Poco C71 128GB",
+    "marca": "Xiaomi",
+    "precio": 198444,
+    "stock": 5,
+    "imagen": "https://placehold.co/320x320/png?text=Xiaomi"
+  },
+  {
+    "id": 9,
+    "nombre": "Xiaomi Redmi 14C 256GB",
+    "marca": "Xiaomi",
+    "precio": 254990,
+    "stock": 3,
+    "imagen": "https://placehold.co/320x320/png?text=Xiaomi"
+  }
+]
