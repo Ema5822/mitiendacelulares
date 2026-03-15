@@ -3,67 +3,127 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tienda Celulares</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>Tienda de Celulares</h1>
+<header>
+<h1>📱 Tienda de Celulares</h1>
+<input id="buscar" placeholder="Buscar celular">
+<select id="marca">
+<option value="">Todas</option>
+<option>Samsung</option>
+<option>Motorola</option>
+<option>Xiaomi</option>
+<option>Realme</option>
+</select>
+</header>
 
-<input type="text" id="buscador" placeholder="Buscar celular...">
+<div id="productos" class="grid"></div>
 
-<div id="productos"></div>
+<div id="detalle" class="detalle"></div>
 
 <script>
 
-async function cargar(){
+let productos=[]
 
-const res = await fetch("/.netlify/functions/celulares")
-const data = await res.json()
+fetch("celulares.json")
+.then(r=>r.json())
+.then(data=>{
 
-window.lista = data
-mostrar(data)
+productos=data
+mostrar(productos)
 
-}
+})
 
 function mostrar(lista){
 
-const cont = document.getElementById("productos")
+let cont=document.getElementById("productos")
 cont.innerHTML=""
 
 lista.forEach(p=>{
 
-cont.innerHTML += `
+cont.innerHTML+=`
+
 <div class="card">
-<img src="${p.imagen}" />
+
+<img src="${p.imagen}">
+
 <h3>${p.nombre}</h3>
-<p class="precio">$ ${p.precio.toLocaleString()}</p>
-<a class="btn" target="_blank"
-href="https://wa.me/543405504914?text=Hola quiero comprar ${encodeURIComponent(p.nombre)}">
-Comprar por WhatsApp
+
+<p class="precio">$${p.precio.toLocaleString()}</p>
+
+<button onclick='verDetalle(${JSON.stringify(p)})'>Ver detalles</button>
+
+<a target="_blank" href="https://wa.me/5493405504914?text=Hola quiero comprar ${encodeURIComponent(p.nombre)}">
+
+<button>Comprar</button>
+
 </a>
+
 </div>
+
 `
 
 })
 
 }
 
-document.getElementById("buscador").addEventListener("input",e=>{
+function verDetalle(p){
 
-const t=e.target.value.toLowerCase()
+document.getElementById("detalle").innerHTML=`
 
-const filtrado = window.lista.filter(p =>
-p.nombre.toLowerCase().includes(t)
+<div class="panel">
+
+<img src="${p.imagen}">
+
+<h2>${p.nombre}</h2>
+
+<p><b>RAM:</b> ${p.ram}</p>
+<p><b>Almacenamiento:</b> ${p.almacenamiento}</p>
+<p><b>Pantalla:</b> ${p.pantalla}</p>
+<p><b>Batería:</b> ${p.bateria}</p>
+<p><b>Cámara:</b> ${p.camara}</p>
+
+<p class="precio">$${p.precio.toLocaleString()}</p>
+
+<a target="_blank" href="https://wa.me/5493405504914?text=Hola quiero comprar ${encodeURIComponent(p.nombre)}">
+<button>Comprar por WhatsApp</button>
+</a>
+
+<button onclick="cerrar()">Cerrar</button>
+
+</div>
+
+`
+document.getElementById("detalle").style.display="block"
+
+}
+
+function cerrar(){
+document.getElementById("detalle").style.display="none"
+}
+
+document.getElementById("buscar").addEventListener("input",filtrar)
+document.getElementById("marca").addEventListener("change",filtrar)
+
+function filtrar(){
+
+let texto=document.getElementById("buscar").value.toLowerCase()
+let marca=document.getElementById("marca").value
+
+let lista=productos.filter(p=>
+
+p.nombre.toLowerCase().includes(texto) &&
+(marca=="" || p.marca==marca)
+
 )
 
-mostrar(filtrado)
+mostrar(lista)
 
-})
-
-cargar()
-
-setInterval(cargar,1800000)
+}
 
 </script>
 
