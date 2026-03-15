@@ -1,131 +1,249 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tienda Celulares</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tienda de Celulares</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <header class="header">
+    <div class="brand">📱 Tienda de Celulares</div>
+    <div class="controls">
+      <input id="buscar" type="text" placeholder="Buscar celular..." />
+      <select id="marca">
+        <option value="">Todas las marcas</option>
+        <option value="Samsung">Samsung</option>
+        <option value="Motorola">Motorola</option>
+        <option value="Xiaomi">Xiaomi</option>
+      </select>
+      <select id="orden">
+        <option value="destacados">Destacados</option>
+        <option value="menor">Menor precio</option>
+        <option value="mayor">Mayor precio</option>
+        <option value="az">A-Z</option>
+      </select>
+      <button class="cart-btn" onclick="abrirCarrito()">🛒 Carrito <span id="cartCount">0</span></button>
+    </div>
+  </header>
 
-<header>
-<h1>📱 Tienda de Celulares</h1>
-<input id="buscar" placeholder="Buscar celular">
-<select id="marca">
-<option value="">Todas</option>
-<option>Samsung</option>
-<option>Motorola</option>
-<option>Xiaomi</option>
-<option>Realme</option>
-</select>
-</header>
+  <main class="container">
+    <section class="hero">
+      <div>
+        <h1>Catálogo ampliado con imágenes reales</h1>
+        <p>Buscador, filtros, detalles del equipo, carrito y compra por WhatsApp.</p>
+      </div>
+      <div class="hero-badge">WhatsApp: 5493405504914</div>
+    </section>
 
-<div id="productos" class="grid"></div>
+    <div class="meta">
+      <span id="estado">Cargando productos...</span>
+      <span>Versión lista para Netlify</span>
+    </div>
 
-<div id="detalle" class="detalle"></div>
+    <section id="productos" class="grid"></section>
+  </main>
 
-<script>
+  <aside id="carritoPanel" class="drawer">
+    <div class="drawer-head">
+      <h2>Tu carrito</h2>
+      <button class="ghost" onclick="cerrarCarrito()">✕</button>
+    </div>
+    <div id="listaCarrito" class="drawer-body"></div>
+    <div class="drawer-foot">
+      <p>Total: <strong id="cartTotal">$0</strong></p>
+      <button class="primary full" onclick="comprarWhatsApp()">Finalizar por WhatsApp</button>
+      <button class="ghost full" onclick="vaciarCarrito()">Vaciar carrito</button>
+    </div>
+  </aside>
 
-let productos=[]
+  <div id="overlay" class="overlay" onclick="cerrarCarrito()"></div>
 
-fetch("celulares.json")
-.then(r=>r.json())
-.then(data=>{
+  <div id="detalle" class="detalle-overlay" onclick="cerrarDetalle(event)">
+    <div class="detalle-card" onclick="event.stopPropagation()">
+      <button class="ghost detalle-close" onclick="cerrarDetalle()">✕</button>
+      <div id="detalleContenido"></div>
+    </div>
+  </div>
 
-productos=data
-mostrar(productos)
+  <script>
+    let productos = [];
+    let carrito = JSON.parse(localStorage.getItem("carritoCelulares") || "[]");
 
-})
+    async function cargar() {
+      const res = await fetch("./celulares.json");
+      productos = await res.json();
+      document.getElementById("estado").textContent = `Se cargaron ${productos.length} celulares`;
+      render();
+      actualizarCarrito();
+    }
 
-function mostrar(lista){
+    function formatoPrecio(valor) {
+      return "$" + Number(valor).toLocaleString("es-AR");
+    }
 
-let cont=document.getElementById("productos")
-cont.innerHTML=""
+    function render() {
+      let lista = [...productos];
+      const texto = document.getElementById("buscar").value.toLowerCase().trim();
+      const marca = document.getElementById("marca").value;
+      const orden = document.getElementById("orden").value;
 
-lista.forEach(p=>{
+      lista = lista.filter(p => {
+        const matchTexto = p.nombre.toLowerCase().includes(texto) || p.marca.toLowerCase().includes(texto);
+        const matchMarca = !marca || p.marca === marca;
+        return matchTexto && matchMarca;
+      });
 
-cont.innerHTML+=`
+      if (orden === "menor") lista.sort((a,b) => a.precio - b.precio);
+      if (orden === "mayor") lista.sort((a,b) => b.precio - a.precio);
+      if (orden === "az") lista.sort((a,b) => a.nombre.localeCompare(b.nombre));
 
-<div class="card">
+      const cont = document.getElementById("productos");
+      cont.innerHTML = "";
 
-<img src="${p.imagen}">
+      if (!lista.length) {
+        cont.innerHTML = '<div class="empty">No se encontraron celulares con ese filtro.</div>';
+        return;
+      }
 
-<h3>${p.nombre}</h3>
+      lista.forEach(p => {
+        cont.innerHTML += `
+          <article class="card">
+            <img src="${p.imagen}" alt="${p.nombre}">
+            <div class="tag">${p.marca}</div>
+            <h3>${p.nombre}</h3>
+            <p class="stock">Stock disponible: ${p.stock}</p>
+            <p class="precio">${formatoPrecio(p.precio)}</p>
+            <div class="actions">
+              <button class="primary" onclick="verDetalle(${p.id})">Ver detalles</button>
+              <button class="secondary" onclick="agregarAlCarrito(${p.id})">Agregar</button>
+              <a class="wa" target="_blank" href="https://wa.me/5493405504914?text=${encodeURIComponent('Hola, quiero consultar por ' + p.nombre + ' - Precio: ' + formatoPrecio(p.precio))}">WhatsApp</a>
+            </div>
+          </article>
+        `;
+      });
+    }
 
-<p class="precio">$${p.precio.toLocaleString()}</p>
+    function verDetalle(id) {
+      const p = productos.find(x => x.id === id);
+      if (!p) return;
+      document.getElementById("detalleContenido").innerHTML = `
+        <img class="detalle-img" src="${p.imagen}" alt="${p.nombre}">
+        <div class="tag">${p.marca}</div>
+        <h2>${p.nombre}</h2>
+        <p class="detalle-precio">${formatoPrecio(p.precio)}</p>
+        <div class="specs">
+          <div><strong>RAM</strong><span>${p.ram}</span></div>
+          <div><strong>Almacenamiento</strong><span>${p.almacenamiento}</span></div>
+          <div><strong>Pantalla</strong><span>${p.pantalla}</span></div>
+          <div><strong>Batería</strong><span>${p.bateria}</span></div>
+          <div><strong>Cámara</strong><span>${p.camara}</span></div>
+          <div><strong>Stock</strong><span>${p.stock}</span></div>
+        </div>
+        <div class="detalle-actions">
+          <button class="primary" onclick="agregarAlCarrito(${p.id})">Agregar al carrito</button>
+          <a class="wa" target="_blank" href="https://wa.me/5493405504914?text=${encodeURIComponent('Hola, quiero comprar ' + p.nombre + ' - Precio: ' + formatoPrecio(p.precio))}">Comprar por WhatsApp</a>
+        </div>
+      `;
+      document.getElementById("detalle").classList.add("show");
+    }
 
-<button onclick='verDetalle(${JSON.stringify(p)})'>Ver detalles</button>
+    function cerrarDetalle(e) {
+      document.getElementById("detalle").classList.remove("show");
+    }
 
-<a target="_blank" href="https://wa.me/5493405504914?text=Hola quiero comprar ${encodeURIComponent(p.nombre)}">
+    function agregarAlCarrito(id) {
+      const producto = productos.find(p => p.id === id);
+      if (!producto) return;
+      const item = carrito.find(p => p.id === id);
+      if (item) item.cantidad += 1;
+      else carrito.push({...producto, cantidad: 1});
+      guardarCarrito();
+      actualizarCarrito();
+    }
 
-<button>Comprar</button>
+    function cambiarCantidad(id, delta) {
+      const item = carrito.find(p => p.id === id);
+      if (!item) return;
+      item.cantidad += delta;
+      if (item.cantidad <= 0) carrito = carrito.filter(p => p.id !== id);
+      guardarCarrito();
+      actualizarCarrito();
+    }
 
-</a>
+    function quitarItem(id) {
+      carrito = carrito.filter(p => p.id !== id);
+      guardarCarrito();
+      actualizarCarrito();
+    }
 
-</div>
+    function guardarCarrito() {
+      localStorage.setItem("carritoCelulares", JSON.stringify(carrito));
+    }
 
-`
+    function actualizarCarrito() {
+      const count = carrito.reduce((acc, item) => acc + item.cantidad, 0);
+      const total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+      document.getElementById("cartCount").textContent = count;
+      document.getElementById("cartTotal").textContent = formatoPrecio(total);
 
-})
+      const lista = document.getElementById("listaCarrito");
+      if (!carrito.length) {
+        lista.innerHTML = '<p class="empty-cart">Tu carrito está vacío.</p>';
+        return;
+      }
 
-}
+      lista.innerHTML = carrito.map(item => `
+        <div class="cart-item">
+          <div>
+            <strong>${item.nombre}</strong>
+            <p>${item.marca} · ${formatoPrecio(item.precio)}</p>
+          </div>
+          <div class="qty">
+            <button onclick="cambiarCantidad(${item.id}, -1)">-</button>
+            <span>${item.cantidad}</span>
+            <button onclick="cambiarCantidad(${item.id}, 1)">+</button>
+          </div>
+          <button class="remove" onclick="quitarItem(${item.id})">Eliminar</button>
+        </div>
+      `).join("");
+    }
 
-function verDetalle(p){
+    function abrirCarrito() {
+      document.getElementById("carritoPanel").classList.add("open");
+      document.getElementById("overlay").classList.add("show");
+    }
 
-document.getElementById("detalle").innerHTML=`
+    function cerrarCarrito() {
+      document.getElementById("carritoPanel").classList.remove("open");
+      document.getElementById("overlay").classList.remove("show");
+    }
 
-<div class="panel">
+    function vaciarCarrito() {
+      carrito = [];
+      guardarCarrito();
+      actualizarCarrito();
+    }
 
-<img src="${p.imagen}">
+    function comprarWhatsApp() {
+      if (!carrito.length) {
+        alert("Tu carrito está vacío");
+        return;
+      }
+      const total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+      let texto = "Hola, quiero hacer este pedido:%0A%0A";
+      carrito.forEach(item => {
+        texto += `• ${item.nombre} x${item.cantidad} - ${formatoPrecio(item.precio * item.cantidad)}%0A`;
+      });
+      texto += `%0ATotal: ${formatoPrecio(total)}`;
+      window.open("https://wa.me/5493405504914?text=" + texto, "_blank");
+    }
 
-<h2>${p.nombre}</h2>
+    document.getElementById("buscar").addEventListener("input", render);
+    document.getElementById("marca").addEventListener("change", render);
+    document.getElementById("orden").addEventListener("change", render);
 
-<p><b>RAM:</b> ${p.ram}</p>
-<p><b>Almacenamiento:</b> ${p.almacenamiento}</p>
-<p><b>Pantalla:</b> ${p.pantalla}</p>
-<p><b>Batería:</b> ${p.bateria}</p>
-<p><b>Cámara:</b> ${p.camara}</p>
-
-<p class="precio">$${p.precio.toLocaleString()}</p>
-
-<a target="_blank" href="https://wa.me/5493405504914?text=Hola quiero comprar ${encodeURIComponent(p.nombre)}">
-<button>Comprar por WhatsApp</button>
-</a>
-
-<button onclick="cerrar()">Cerrar</button>
-
-</div>
-
-`
-document.getElementById("detalle").style.display="block"
-
-}
-
-function cerrar(){
-document.getElementById("detalle").style.display="none"
-}
-
-document.getElementById("buscar").addEventListener("input",filtrar)
-document.getElementById("marca").addEventListener("change",filtrar)
-
-function filtrar(){
-
-let texto=document.getElementById("buscar").value.toLowerCase()
-let marca=document.getElementById("marca").value
-
-let lista=productos.filter(p=>
-
-p.nombre.toLowerCase().includes(texto) &&
-(marca=="" || p.marca==marca)
-
-)
-
-mostrar(lista)
-
-}
-
-</script>
-
+    cargar();
+  </script>
 </body>
 </html>
