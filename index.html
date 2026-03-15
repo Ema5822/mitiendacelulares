@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Tienda Celulares</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Tienda de Celulares</h1>
+
+<input type="text" id="buscador" placeholder="Buscar celular...">
+
+<div id="productos"></div>
+
+<script>
+
+async function cargar(){
+
+const res = await fetch("/.netlify/functions/celulares")
+const data = await res.json()
+
+window.lista = data
+mostrar(data)
+
+}
+
+function mostrar(lista){
+
+const cont = document.getElementById("productos")
+cont.innerHTML=""
+
+lista.forEach(p=>{
+
+cont.innerHTML += `
+<div class="card">
+<img src="${p.imagen}" />
+<h3>${p.nombre}</h3>
+<p class="precio">$ ${p.precio.toLocaleString()}</p>
+<a class="btn" target="_blank"
+href="https://wa.me/543405504914?text=Hola quiero comprar ${encodeURIComponent(p.nombre)}">
+Comprar por WhatsApp
+</a>
+</div>
+`
+
+})
+
+}
+
+document.getElementById("buscador").addEventListener("input",e=>{
+
+const t=e.target.value.toLowerCase()
+
+const filtrado = window.lista.filter(p =>
+p.nombre.toLowerCase().includes(t)
+)
+
+mostrar(filtrado)
+
+})
+
+cargar()
+
+setInterval(cargar,1800000)
+
+</script>
+
+</body>
+</html>
