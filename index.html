@@ -1,111 +1,76 @@
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Celulares | Tu tienda</title>
-    <meta
-      name="description"
-      content="Tienda online de celulares con catálogo actualizado automáticamente."
-    />
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <header class="topbar">
-      <div class="brand-wrap">
-        <div class="brand-badge">📱</div>
-        <div>
-          <p class="eyebrow">Catálogo online</p>
-          <h1>Venta de celulares</h1>
-        </div>
-      </div>
-      <a
-        id="whatsappHeader"
-        class="btn btn-whatsapp"
-        href="https://wa.me/543405504914?text=Hola,%20quiero%20consultar%20por%20un%20celular"
-        target="_blank"
-        rel="noreferrer"
-      >
-        Vender por WhatsApp
-      </a>
-    </header>
 
-    <section class="hero">
-      <div>
-        <p class="eyebrow">Diseño tipo marketplace</p>
-        <h2>Buscá el celular ideal al mejor precio</h2>
-        <p class="hero-text">
-          El catálogo toma los equipos publicados en Evophone y se vuelve a consultar automáticamente cada 30 minutos.
-        </p>
-      </div>
-      <div class="hero-actions">
-        <button id="refreshBtn" class="btn">Actualizar ahora</button>
-        <span id="statusBadge" class="status">Cargando catálogo…</span>
-      </div>
-    </section>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Tienda Celulares</title>
+<link rel="stylesheet" href="style.css">
+</head>
 
-    <section class="controls">
-      <div class="search-box">
-        <input id="searchInput" type="search" placeholder="Buscar por marca, modelo, color, memoria..." />
-      </div>
-      <div class="filters">
-        <select id="brandFilter">
-          <option value="">Todas las marcas</option>
-        </select>
-        <select id="sortFilter">
-          <option value="relevance">Orden recomendado</option>
-          <option value="price-asc">Menor precio</option>
-          <option value="price-desc">Mayor precio</option>
-          <option value="name-asc">Nombre A-Z</option>
-        </select>
-      </div>
-    </section>
+<body>
 
-    <section class="summary">
-      <div class="summary-card">
-        <span>Celulares encontrados</span>
-        <strong id="totalCount">0</strong>
-      </div>
-      <div class="summary-card">
-        <span>Última actualización</span>
-        <strong id="lastUpdate">-</strong>
-      </div>
-      <div class="summary-card">
-        <span>Origen</span>
-        <strong>Evophone</strong>
-      </div>
-    </section>
+<header>
+<h1>📱 Tienda de Celulares</h1>
+<input id="buscar" placeholder="Buscar celular">
+</header>
 
-    <main>
-      <div id="errorBox" class="error hidden"></div>
-      <div id="productsGrid" class="grid"></div>
-      <div id="emptyState" class="empty hidden">
-        No encontré celulares con ese filtro.
-      </div>
-    </main>
+<div id="productos" class="grid"></div>
 
-    <template id="productTemplate">
-      <article class="card">
-        <div class="card-image-wrap">
-          <img class="card-image" alt="" loading="lazy" />
-          <span class="card-stock"></span>
-        </div>
-        <div class="card-body">
-          <p class="card-brand"></p>
-          <h3 class="card-title"></h3>
-          <div class="price-row">
-            <span class="old-price"></span>
-            <strong class="price"></strong>
-          </div>
-          <p class="card-meta"></p>
-          <div class="card-actions">
-            <a class="btn btn-outline product-link" target="_blank" rel="noreferrer">Ver detalle</a>
-            <a class="btn btn-whatsapp whatsapp-link" target="_blank" rel="noreferrer">Consultar</a>
-          </div>
-        </div>
-      </article>
-    </template>
+<script>
 
-    <script src="./app.js" defer></script>
-  </body>
+let celulares=[]
+
+fetch("/.netlify/functions/celulares")
+.then(r=>r.json())
+.then(data=>{
+celulares=data
+mostrar(data)
+})
+
+function mostrar(lista){
+
+const cont=document.getElementById("productos")
+cont.innerHTML=""
+
+lista.forEach(p=>{
+
+cont.innerHTML+=`
+
+<div class="card">
+
+<img src="${p.imagen}" onerror="this.src='https://via.placeholder.com/150'">
+
+<h3>${p.nombre}</h3>
+
+<p class="precio">$${p.precio}</p>
+
+<a target="_blank" href="https://wa.me/549XXXXXXXXXX?text=Hola quiero comprar ${p.nombre}">
+
+<button>Comprar por WhatsApp</button>
+
+</a>
+
+</div>
+
+`
+
+})
+
+}
+
+document.getElementById("buscar").addEventListener("input",(e)=>{
+
+let texto=e.target.value.toLowerCase()
+
+let filtrados=celulares.filter(p=>
+p.nombre.toLowerCase().includes(texto)
+)
+
+mostrar(filtrados)
+
+})
+
+</script>
+
+</body>
 </html>
